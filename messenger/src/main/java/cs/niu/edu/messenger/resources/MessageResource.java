@@ -23,12 +23,24 @@ import cs.niu.edu.messenger.model.Message;
 
 @Path("/messages")
 @Consumes(MediaType.APPLICATION_JSON)
+//@Produces(value ={MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces(MediaType.APPLICATION_JSON)
 public class MessageResource {
 	MessageService ms=new MessageService();
 	
 	@GET
-	public List<Message> getAllMessagesforYear(@BeanParam MessageFilterBean filterBean){
+	@Produces(MediaType.APPLICATION_JSON)	// This is to override the class level @Produces value
+	public List<Message> getAllJsonMessagesforYear(@BeanParam MessageFilterBean filterBean){
+		if(filterBean.getYear() > 0)
+			return ms.getAllMessageforYear(filterBean.getYear());
+		if((filterBean.getStart() >= 0) && (filterBean.getSize() >0))
+			return ms.getAllMessagesPaginated(filterBean.getStart() , filterBean.getSize());
+		return ms.getAllMessges();
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_XML)	// This is to override the class level @Produces value
+	public List<Message> getAllXmlMessagesforYear(@BeanParam MessageFilterBean filterBean){
 		if(filterBean.getYear() > 0)
 			return ms.getAllMessageforYear(filterBean.getYear());
 		if((filterBean.getStart() >= 0) && (filterBean.getSize() >0))

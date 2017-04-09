@@ -1,7 +1,9 @@
 package cs.niu.edu.messenger.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -14,6 +16,8 @@ public class Message {
 	private String message;
 	private String author;
 	private Map<Long, Comment> comments=new HashMap<>();
+	private List<Link> links=new ArrayList<>();
+	
 	public Message(){}
 	
 	public Message(long id, String message, String author) {
@@ -57,5 +61,22 @@ public class Message {
 	public void setComments(Map<Long, Comment> comments){
 		this.comments=comments;
 	}
+
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<Link> links) {
+		this.links = links;
+	}
+	
+	public void addLink(String url, String rel){
+		Link link=new Link();
+		link.setLink(url);
+		link.setRel(rel);
+		links.add(link);
+	}
+	
+	
 	
 }

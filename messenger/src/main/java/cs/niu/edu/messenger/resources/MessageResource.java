@@ -35,12 +35,59 @@ public class MessageResource {
 			return ms.getAllMessagesPaginated(filterBean.getStart() , filterBean.getSize());
 		return ms.getAllMessges();
 	}
-
+/*
 	@GET
 	@Path("/{messageId}")
 	public Message getMessage(@PathParam("messageId") Long messageId){
-		return ms.getMessage(messageId);
+		Message message=ms.getMessage(messageId);
+		
+		return message;
 	}
+	*/
+	// ---> The above method is modified to contain links as follows
+	// Adding HATEOS LINKS for self messages
+	
+	
+	@GET
+	@Path("/{messageId}")
+	public Message getMessage(@PathParam("messageId") Long messageId, @Context UriInfo uriInfo){
+		Message message=ms.getMessage(messageId);
+		message.addLink(this.getUriForSelf(uriInfo, message), "self");	// Adding link to message that just got
+		message.addLink(this.getUriForProfile(uriInfo, message),"profile");	// Adding link to profile of the person who commented this
+		message.addLink(this.getUriForComments(uriInfo, message),"comments");
+		return message;
+	}
+	
+	private String getUriForComments(UriInfo uriInfo, Message message){
+		URI uri= uriInfo.getBaseUriBuilder()
+//				.path(CommentResource.class) does work since it's a sub class. Only "/" is registered
+				.path(MessageResource.class)
+				.path(MessageResource.class,"getCommentResource")	// Has a variable here {messageId}
+				.resolveTemplate("messageId", message.getId()) 		// Likewise resolve all variables
+				.path(CommentResource.class)
+				.build();
+		return uri.toString();
+	}
+	
+	private String getUriForSelf(UriInfo uriInfo, Message message){
+		return uriInfo.getBaseUriBuilder()
+		.path(MessageResource.class)
+		.path(Long.toString(message.getId()))
+		.build()
+		.toString();
+	}
+	
+	// Now Adding links to profile
+	
+	private String getUriForProfile(UriInfo uriInfo, Message message){
+		URI uri= uriInfo.getBaseUriBuilder()
+				.path(ProfileResource.class)
+				.path(message.getAuthor())
+				.build();
+		return uri.toString();
+	}
+	
+	
 	
 	@POST
 	public Response addMessage(Message message, @Context UriInfo uriInfo) throws URISyntaxException{

@@ -5,17 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 import cs.niu.edu.messenger.database.DatabaseClass;
+import cs.niu.edu.messenger.exception.DataNotFoundException;
 import cs.niu.edu.messenger.model.Message;
 
 public class MessageService {
 	private Map<Long, Message> messages=DatabaseClass.getMessages();
 	
 	public MessageService(){
-		
+		messages.put(1l, new Message(1L,"Hello world!","Anwar"));
+		messages.put(2l, new Message(2L,"Hello jersey!","Zaffar"));
 	}
 	
 	public List<Message> getAllMessageforYear(int year){
-		
 		List<Message> messagesforYear=new ArrayList<>();
 		for(Message message: messages.values()){
 			if(message.getCreated().getYear()==year)
@@ -35,7 +36,10 @@ public class MessageService {
 		return new ArrayList<>(messages.values());
 	}
 	public Message getMessage(long id){
-		return messages.get(id);
+		Message message=messages.get(id);
+		if(message==null)
+			throw new DataNotFoundException("Message with id "+id+" not found!");
+		return message;
 	}
 	public Message updateMessage(Message message){
 		if(message.getId()<=0){

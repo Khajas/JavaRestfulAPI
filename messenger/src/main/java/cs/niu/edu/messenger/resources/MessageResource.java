@@ -1,5 +1,7 @@
 package cs.niu.edu.messenger.resources;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.ws.rs.BeanParam;
@@ -11,7 +13,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import cs.niu.edu.messenger.service.MessageService;
 import cs.niu.edu.messenger.model.Message;
 
@@ -37,9 +43,19 @@ public class MessageResource {
 	}
 	
 	@POST
-	public Message addMessage(Message message){
-		return ms.addMessage(message);
+	public Response addMessage(Message message, @Context UriInfo uriInfo) throws URISyntaxException{
+		Message newMessage=ms.addMessage(message);
+		// 	or return Response.status(Status.CREATED).entity(newMessage).build();
+		//	or return Response.created(new URI("/messenger/webapi/messages/"+newMessage.getId()))
+		//			.entity(newMessage)
+		//			.build();
+		// Better way
+		return Response.created(new URI(uriInfo.getPath()+newMessage.getId()))
+							.entity(newMessage)
+							.build();
 	}
+	
+	
 	
 	@PUT
 	@Path("/{messageId}")
